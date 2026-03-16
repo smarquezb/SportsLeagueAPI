@@ -5,6 +5,7 @@ using SportsLeague.Domain.Interfaces.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SportsLeague.DataAccess.Repositories
 {
@@ -35,9 +36,10 @@ namespace SportsLeague.DataAccess.Repositories
 
             return await _dbSet.ToListAsync();
 
+        }
 
 
-public async Task<T?> GetByIdAsync(int id)
+        public async Task<T?> GetByIdAsync(int id)
 
         {
 
