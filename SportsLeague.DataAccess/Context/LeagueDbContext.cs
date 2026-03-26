@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using SportsLeague.Domain.Entities;
 
 namespace SportsLeague.DataAccess.Context
@@ -147,4 +146,7 @@ namespace SportsLeague.DataAccess.Context
         }
     }
 }
+
+
+
 
