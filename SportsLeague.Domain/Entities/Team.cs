@@ -13,3 +13,5 @@
         public ICollection<TournamentTeam> TournamentTeams { get; set; } = new List<TournamentTeam>();
     }
 }
+
+

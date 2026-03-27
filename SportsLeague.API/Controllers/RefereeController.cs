@@ -1,5 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using SportsLeague.API.DTOs.Request;
+using SportsLeague.API.DTOs.Response;
+using SportsLeague.Domain.Entities;
+using SportsLeague.Domain.Interfaces.Services;
 
 namespace SportsLeague.API.Controllers
 {
@@ -74,5 +78,4 @@ namespace SportsLeague.API.Controllers
         }
     }
 }
-
 
