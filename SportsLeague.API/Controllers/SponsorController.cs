@@ -14,52 +14,64 @@ namespace SportsLeague.API.Controllers
         private readonly ISponsorService _service;
         private readonly IMapper _mapper;
 
-        public SponsorController(ISponsorService service, IMapper mapper)
+        public SponsorController(ISponsorService sponsorService, IMapper mapper)
         {
-            _service = service;
+            _service = sponsorService;
             _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<IEnumerable<SponsorResponseDTO>>> GetAll()
         {
             var data = await _service.GetAllAsync();
             return Ok(_mapper.Map<IEnumerable<SponsorResponseDTO>>(data));
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<SponsorResponseDTO>> GetById(int id)
         {
-            var sponsor = await _service.GetByIdAsync(id);
-            if (sponsor == null) return NotFound();
-            return Ok(_mapper.Map<SponsorResponseDTO>(sponsor));
+            var result = await _service.GetByIdAsync(id);
+
+            if (result is null) return NotFound();
+
+            return Ok(_mapper.Map<SponsorResponseDTO>(result));
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] SponsorRequestDTO dto)
+        public async Task<ActionResult<SponsorResponseDTO>> Create([FromBody] SponsorRequestDTO request)
         {
             try
             {
-                var entity = _mapper.Map<Sponsor>(dto);
-                var result = await _service.CreateAsync(entity);
-                return CreatedAtAction(nameof(GetById), new { id = result.Id }, _mapper.Map<SponsorResponseDTO>(result));
+                var entity = _mapper.Map<Sponsor>(request);
+                var created = await _service.CreateAsync(entity);
+
+                var output = _mapper.Map<SponsorResponseDTO>(created);
+
+                return CreatedAtAction(nameof(GetById), new { id = output.Id }, output);
             }
-            catch (Exception ex) { return BadRequest(ex.Message); }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { error = ex.Message });
+            }
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] SponsorRequestDTO dto)
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update(int id, [FromBody] SponsorRequestDTO payload)
         {
             try
             {
-                var entity = _mapper.Map<Sponsor>(dto);
+                var entity = _mapper.Map<Sponsor>(payload);
                 await _service.UpdateAsync(id, entity);
+
                 return NoContent();
             }
-            catch (Exception ex) { return BadRequest(ex.Message); }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
             try
@@ -67,7 +79,60 @@ namespace SportsLeague.API.Controllers
                 await _service.DeleteAsync(id);
                 return NoContent();
             }
-            catch { return NotFound(); }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+        }
+
+      
+        [HttpGet("tournaments/{tournamentId:int}/sponsors")]
+        public async Task<ActionResult<IEnumerable<TournamentSponsorResponseDTO>>> GetSponsorsByTournament(int tournamentId)
+        {
+            var data = await _service.GetSponsorsByTournamentAsync(tournamentId);
+            return Ok(_mapper.Map<IEnumerable<TournamentSponsorResponseDTO>>(data));
+        }
+
+      
+        [HttpPost("tournaments/{tournamentId:int}/sponsors")]
+        public async Task<IActionResult> RegisterSponsor(int tournamentId, [FromBody] TournamentSponsorRequestDTO input)
+        {
+            try
+            {
+                var result = await _service.RegisterSponsorAsync(
+                    tournamentId,
+                    input.SponsorId,
+                    input.ContractAmount
+                );
+
+                var dto = _mapper.Map<TournamentSponsorResponseDTO>(result);
+
+                return CreatedAtAction(nameof(GetSponsorsByTournament), new { tournamentId }, dto);
+            }
+            catch (InvalidOperationException e)
+            {
+                return Conflict(new { details = e.Message });
+            }
+            catch (KeyNotFoundException e)
+            {
+                return NotFound(new { details = e.Message });
+            }
+        }
+
+     
+        [HttpDelete("tournaments/{tournamentId:int}/sponsors/{sponsorId:int}")]
+        public async Task<IActionResult> RemoveSponsor(int tournamentId, int sponsorId)
+        {
+            try
+            {
+                await _service.RemoveSponsorAsync(tournamentId, sponsorId);
+                return NoContent();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
         }
     }
 }
+
