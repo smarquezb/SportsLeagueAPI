@@ -7,10 +7,10 @@ namespace SportsLeague.DataAccess.Repositories
 {
     public class SponsorRepository : GenericRepository<Sponsor>, ISponsorRepository
     {
-        // Constructor que inyecta el contexto de base de datos a la clase base
+        // Constructor that injects the database context into the base class
         public SponsorRepository(LeagueDbContext dbContext) : base(dbContext) { }
 
-        // Localiza un patrocinador en el sistema filtrando por su nombre comercial.
+        // Locate a sponsor in the system by filtering by its trade name.
         public async Task<Sponsor?> GetByNameAsync(string sponsorName)
         {
             

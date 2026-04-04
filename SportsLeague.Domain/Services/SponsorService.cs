@@ -22,7 +22,7 @@ namespace SportsLeague.Domain.Services
             _relations = relations;
         }
 
-        // Validación de formato de email mediante expresión regular
+        // Email format validation using regular expression
         private static bool IsEmailValid(string email)
         {
             if (string.IsNullOrWhiteSpace(email)) return false;
@@ -75,7 +75,7 @@ namespace SportsLeague.Domain.Services
             if (amount <= 0)
                 throw new InvalidOperationException("El valor del contrato debe ser superior a cero.");
 
-            // Uso del descarte '_' para validar existencia sin asignar variable
+            // Using the discard '_' to validate existence without assigning a variable
             _ = await _tournaments.GetByIdAsync(tId) ?? throw new KeyNotFoundException("Torneo inexistente.");
             _ = await _sponsors.GetByIdAsync(sId) ?? throw new KeyNotFoundException("Patrocinador inexistente.");
 
