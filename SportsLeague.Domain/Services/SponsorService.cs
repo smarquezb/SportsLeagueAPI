@@ -1,8 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
-using SportsLeague.Domain.Entities;
+﻿using SportsLeague.Domain.Entities;
 using SportsLeague.Domain.Interfaces.Repositories;
 using SportsLeague.Domain.Interfaces.Services;
-using System.Text.RegularExpressions;
 
 namespace SportsLeague.Domain.Services
 {
@@ -12,99 +10,65 @@ namespace SportsLeague.Domain.Services
         private readonly ITournamentRepository _tournaments;
         private readonly ITournamentSponsorRepository _relations;
 
-        public SponsorService(
-            ISponsorRepository sponsors,
-            ITournamentRepository tournaments,
-            ITournamentSponsorRepository relations)
+        public SponsorService(ISponsorRepository sponsors, ITournamentRepository tournaments, ITournamentSponsorRepository relations)
         {
             _sponsors = sponsors;
             _tournaments = tournaments;
             _relations = relations;
         }
 
-        // Email format validation using regular expression
-        private static bool IsEmailValid(string email)
-        {
-            if (string.IsNullOrWhiteSpace(email)) return false;
-            
-            return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
-        }
-
         public async Task<IEnumerable<Sponsor>> GetAllAsync() => await _sponsors.GetAllAsync();
 
-        public async Task<Sponsor?> GetByIdAsync(int sponsorId) => await _sponsors.GetByIdAsync(sponsorId);
+        public async Task<Sponsor> GetByIdAsync(int id) => await _sponsors.GetByIdAsync(id);
 
         public async Task<Sponsor> CreateAsync(Sponsor entity)
         {
-            var duplicate = await _sponsors.GetByNameAsync(entity.Name);
-            if (duplicate != null)
-                throw new InvalidOperationException($"El nombre '{entity.Name}' ya se encuentra registrado.");
-
-            if (!IsEmailValid(entity.ContactEmail))
-                throw new InvalidOperationException("La dirección de correo electrónico es inválida.");
+            var exists = await _sponsors.GetByNameAsync(entity.Name);
+            if (exists != null) throw new InvalidOperationException("Ese nombre ya está registrado.");
 
             return await _sponsors.CreateAsync(entity);
         }
 
-        public async Task UpdateAsync(int sponsorId, Sponsor entity)
+        public async Task UpdateAsync(int id, Sponsor entity)
         {
-            var currentSponsor = await _sponsors.GetByIdAsync(sponsorId)
-                ?? throw new KeyNotFoundException($"ID {sponsorId} no existe en la base de datos.");
+            var current = await _sponsors.GetByIdAsync(id);
+            if (current == null) throw new KeyNotFoundException("No se encontró el sponsor.");
 
-            if (!IsEmailValid(entity.ContactEmail))
-                throw new InvalidOperationException("El nuevo correo no tiene un formato aceptable.");
+            // Actualización directa de campos
+            current.Name = entity.Name;
+            current.ContactEmail = entity.ContactEmail;
+            current.Phone = entity.Phone;
+            current.WebsiteUrl = entity.WebsiteUrl;
 
-            currentSponsor.Name = entity.Name;
-            currentSponsor.ContactEmail = entity.ContactEmail;
-            currentSponsor.Phone = entity.Phone;
-            currentSponsor.WebsiteUrl = entity.WebsiteUrl;
-
-            await _sponsors.UpdateAsync(currentSponsor);
+            await _sponsors.UpdateAsync(current);
         }
 
-        public async Task DeleteAsync(int sponsorId)
+        public async Task DeleteAsync(int id)
         {
-            if (!await _sponsors.ExistsAsync(sponsorId))
-                throw new KeyNotFoundException("No se puede eliminar: Patrocinador no encontrado.");
+            var exists = await _sponsors.ExistsAsync(id);
+            if (!exists) throw new KeyNotFoundException("Sponsor no encontrado.");
 
-            await _sponsors.DeleteAsync(sponsorId);
+            await _sponsors.DeleteAsync(id);
         }
 
         public async Task<TournamentSponsor> RegisterSponsorAsync(int tId, int sId, decimal amount)
         {
-            if (amount <= 0)
-                throw new InvalidOperationException("El valor del contrato debe ser superior a cero.");
-
-            // Using the discard '_' to validate existence without assigning a variable
-            _ = await _tournaments.GetByIdAsync(tId) ?? throw new KeyNotFoundException("Torneo inexistente.");
-            _ = await _sponsors.GetByIdAsync(sId) ?? throw new KeyNotFoundException("Patrocinador inexistente.");
-
             var exists = await _relations.GetByTournamentAndSponsorAsync(tId, sId);
-            if (exists != null)
-                throw new InvalidOperationException("Esta vinculación ya fue creada previamente.");
+            if (exists != null) throw new InvalidOperationException("Ya existe esta relación.");
 
-            var newRelation = new TournamentSponsor
-            {
-                SponsorId = sId,
-                TournamentId = tId,
-                ContractAmount = amount
-            };
-
-            return await _relations.CreateWithIncludesAsync(newRelation);
+            var relation = new TournamentSponsor { SponsorId = sId, TournamentId = tId, ContractAmount = amount };
+            return await _relations.CreateWithIncludesAsync(relation);
         }
 
         public async Task<IEnumerable<TournamentSponsor>> GetSponsorsByTournamentAsync(int tId)
-        {
-            return await _relations.GetSponsorsByTournamentAsync(tId);
-        }
+            => await _relations.GetSponsorsByTournamentAsync(tId);
 
         public async Task RemoveSponsorAsync(int tId, int sId)
         {
-            var match = await _relations.GetByTournamentAndSponsorAsync(tId, sId)
-                ?? throw new KeyNotFoundException("No existe relación activa entre este torneo y el sponsor.");
+            var match = await _relations.GetByTournamentAndSponsorAsync(tId, sId);
+            if (match == null) throw new KeyNotFoundException("Relación no encontrada.");
 
             await _relations.DeleteAsync(match.Id);
         }
     }
 }
-

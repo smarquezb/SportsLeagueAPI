@@ -7,10 +7,11 @@ namespace SportsLeague.DataAccess.Repositories
 {
     public class TournamentSponsorRepository : GenericRepository<TournamentSponsor>, ITournamentSponsorRepository
     {
-        // Inyección del contexto para la persistencia
+        // Context injection for persistence
         public TournamentSponsorRepository(LeagueDbContext db) : base(db) { }
 
-        // Recupera la relación específica cargando las entidades relacionadas
+
+        // Retrieves the specific relationship by loading the related entities
         public async Task<TournamentSponsor?> GetByTournamentAndSponsorAsync(int tId, int sId)
         {
             return await _dbSet.AsNoTracking()
@@ -19,7 +20,8 @@ namespace SportsLeague.DataAccess.Repositories
                 .FirstOrDefaultAsync(x => x.TournamentId == tId && x.SponsorId == sId);
         }
 
-        // Obtiene el listado de patrocinadores vinculados a un torneo
+
+        // Gets the list of sponsors linked to a tournament
         public async Task<IEnumerable<TournamentSponsor>> GetSponsorsByTournamentAsync(int tournamentId)
         {
             return await _dbSet.AsNoTracking()
@@ -29,7 +31,7 @@ namespace SportsLeague.DataAccess.Repositories
                 .ToListAsync();
         }
 
-        // Registra una nueva vinculación y retorna el objeto con sus relaciones cargadas
+        // Registers a new link and returns the object with its loaded relationships
         public async Task<TournamentSponsor> CreateWithIncludesAsync(TournamentSponsor model)
         {
             model.CreatedAt = DateTime.UtcNow;
@@ -44,6 +46,7 @@ namespace SportsLeague.DataAccess.Repositories
         }
     }
 }
+
 
 
 
