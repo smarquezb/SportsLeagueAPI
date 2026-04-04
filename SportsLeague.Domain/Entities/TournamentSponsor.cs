@@ -8,7 +8,7 @@ namespace SportsLeague.Domain.Entities
 
         public decimal ContractAmount { get; set; }
 
-        // Navigation Properties
+        // // Referencias de navegación
         public Tournament Tournament { get; set; } = null!;
         public Sponsor Sponsor { get; set; } = null!;
     }

@@ -4,8 +4,13 @@ namespace SportsLeague.Domain.Interfaces.Repositories
 {
     public interface ITournamentSponsorRepository : IGenericRepository<TournamentSponsor>
     {
-        Task<TournamentSponsor?> GetByTournamentAndSponsorAsync(int tournamentId, int sponsorId);
-        Task<IEnumerable<TournamentSponsor>> GetSponsorsByTournamentAsync(int tournamentId);
-        Task<TournamentSponsor> CreateWithIncludesAsync(TournamentSponsor entity);
+        // Obtiene la lista completa de sponsors vinculados a un torneo
+        Task<IEnumerable<TournamentSponsor>> GetSponsorsByTournamentAsync(int tourneyId);
+
+
+        Task<TournamentSponsor?> GetByTournamentAndSponsorAsync(int tId, int sId);
+
+        
+        Task<TournamentSponsor> CreateWithIncludesAsync(TournamentSponsor model);
     }
 }

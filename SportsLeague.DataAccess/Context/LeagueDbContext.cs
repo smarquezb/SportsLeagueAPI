@@ -162,7 +162,7 @@ public class LeagueDbContext : DbContext
             entity.Property(x => x.CreatedAt)
                   .IsRequired();
         });
-        //Configuracion de Tournamentsponsor
+        //Configuraciones de Tournamentsponsor -
         modelBuilder.Entity<TournamentSponsor>(entity =>
         {
             entity.HasKey(x => x.Id);
@@ -184,6 +184,5 @@ public class LeagueDbContext : DbContext
 
     }
 }
-
 
 

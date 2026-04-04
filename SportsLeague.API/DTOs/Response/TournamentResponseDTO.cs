@@ -10,7 +10,7 @@ namespace SportsLeague.API.DTOs.Response
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public TournamentStatus Status { get; set; }
-        public int TeamsCount { get; set; } // Ad hoc para mostrar el número de equipos inscritos
+        public int TeamsCount { get; set; } 
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
     }
