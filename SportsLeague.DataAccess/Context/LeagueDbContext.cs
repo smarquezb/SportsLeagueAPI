@@ -18,11 +18,13 @@ namespace SportsLeague.DataAccess.Context
         public DbSet<Match> Matches => Set<Match>();
         public DbSet<Sponsor> Sponsors => Set<Sponsor>();
         public DbSet<TournamentSponsor> TournamentSponsors => Set<TournamentSponsor>();
+
         public DbSet<MatchResult> MatchResults => Set<MatchResult>();
 
         public DbSet<Goal> Goals => Set<Goal>();
 
         public DbSet<Card> Cards => Set<Card>();
+
 
 
 
@@ -156,12 +158,19 @@ namespace SportsLeague.DataAccess.Context
             });
 
             // ── TournamentSponsor Configuration 
+
+            // ── TournamentSponsor Configuration 
+
             modelBuilder.Entity<TournamentSponsor>(entity =>
             {
                 entity.HasKey(ts => ts.Id);
 
                 entity.Property(ts => ts.ContractAmount)
+
                       .HasPrecision(18, 2) 
+
+                      .HasPrecision(18, 2) 
+ 
                       .IsRequired();
 
                 entity.Property(ts => ts.CreatedAt).IsRequired();
@@ -179,6 +188,7 @@ namespace SportsLeague.DataAccess.Context
 
                 entity.HasIndex(ts => new { ts.TournamentId, ts.SponsorId })
                       .IsUnique();
+
 
                 // ── MatchResult Configuration ──
                 modelBuilder.Entity<MatchResult>(entity =>
@@ -239,6 +249,7 @@ namespace SportsLeague.DataAccess.Context
                           .HasForeignKey(c => c.PlayerId)
                           .OnDelete(DeleteBehavior.Restrict);
                 });
+
 
 
 

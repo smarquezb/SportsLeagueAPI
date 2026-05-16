@@ -39,6 +39,7 @@ public class Match : AuditBase
     public Referee Referee { get; set; } = null!;
 
 
+
     // Agregar dentro de Match: 
 
 
@@ -54,6 +55,7 @@ public class Match : AuditBase
     public ICollection<Goal> Goals { get; set; } = new List<Goal>();
 
     public ICollection<Card> Cards { get; set; } = new List<Card>();
+
 
 
 
