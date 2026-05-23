@@ -1,6 +1,6 @@
 ﻿namespace SportsLeague.API.DTOs.Request;
 
-public class CreateMatchLineupDto
+public class MatchLineupRequestDTO
 {
     public int PlayerId { get; set; }
     public bool IsStarter { get; set; }

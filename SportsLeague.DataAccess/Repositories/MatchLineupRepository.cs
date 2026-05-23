@@ -1,50 +1,73 @@
-﻿using SportsLeague.DataAccess.Context;
+﻿using Microsoft.EntityFrameworkCore;
+using SportsLeague.DataAccess.Context;
 using SportsLeague.Domain.Entities;
 using SportsLeague.Domain.Interfaces.Repositories;
-using Microsoft.EntityFrameworkCore;
 
-namespace SportsLeague.DataAccess.Repositories
+namespace SportsLeague.DataAccess.Repositories;
+
+public class MatchLineupRepository : GenericRepository<MatchLineup>, IMatchLineupRepository
 {
-    public class MatchLineupRepository : GenericRepository<MatchLineup>, IMatchLineupRepository
+    public MatchLineupRepository(LeagueDbContext context) : base(context) { }
+
+    public async Task<IEnumerable<MatchLineup>> GetByMatchAsync(int matchId)
     {
-        public MatchLineupRepository(LeagueDbContext context) : base(context) { }
+        return await _dbSet
+            .Where(ml => ml.MatchId == matchId)
+            .ToListAsync();
+    }
 
-        public async Task<IEnumerable<MatchLineup>> GetByMatchAsync(int matchId)
-        {
-            return await _dbSet
-                .Where(ml => ml.MatchId == matchId)
-                .Include(ml => ml.Player)
+    public async Task<IEnumerable<MatchLineup>> GetByMatchWithDetailsAsync(int matchId)
+    {
+        return await _dbSet
+            .Where(ml => ml.MatchId == matchId)
+            .Include(ml => ml.Player)
                 .ThenInclude(p => p.Team)
-                .OrderByDescending(ml => ml.IsStarter)
-                .ThenBy(ml => ml.Position)
-                .ToListAsync();
-        }
+            .OrderByDescending(ml => ml.IsStarter)
+            .ToListAsync();
+    }
 
-        public async Task<IEnumerable<MatchLineup>> GetByMatchAndTeamAsync(int matchId, int teamId)
-        {
-            return await _dbSet
-                .Where(ml => ml.MatchId == matchId && ml.Player.TeamId == teamId)
-                .Include(ml => ml.Player)
+    public async Task<IEnumerable<MatchLineup>> GetByMatchAndTeamAsync(int matchId, int teamId)
+    {
+        return await _dbSet
+            .Where(ml => ml.MatchId == matchId && ml.Player.TeamId == teamId)
+            .Include(ml => ml.Player)
                 .ThenInclude(p => p.Team)
-                .OrderByDescending(ml => ml.IsStarter)
-                .ThenBy(ml => ml.Position)
-                .ToListAsync();
-        }
+            .OrderByDescending(ml => ml.IsStarter)
+            .ToListAsync();
+    }
 
-        public async Task<MatchLineup?> GetByMatchAndPlayerAsync(int matchId, int playerId)
-        {
-            return await _dbSet
-                .FirstOrDefaultAsync(ml => ml.MatchId == matchId && ml.PlayerId == playerId);
-        }
+    public async Task<bool> ExistsPlayerInMatchAsync(int matchId, int playerId)
+    {
+        return await _dbSet
+            .AnyAsync(ml => ml.MatchId == matchId && ml.PlayerId == playerId);
+    }
 
-        public async Task<int> CountStartersByTeamInMatchAsync(int matchId, int teamId)
-        {
-            return await _dbSet
-                .Where(ml => ml.MatchId == matchId
-                          && ml.Player.TeamId == teamId
-                          && ml.IsStarter)
-                .CountAsync();
-        }
+    public async Task<int> CountStartersByMatchAndTeamAsync(int matchId, int teamId)
+    {
+        return await _dbSet
+            .Include(ml => ml.Player)
+            .CountAsync(ml => ml.MatchId == matchId &&
+                              ml.Player.TeamId == teamId &&
+                              ml.IsStarter);
+    }
+
+    public async Task<MatchLineup?> GetByIdWithDetailsAsync(int id)
+    {
+        return await _dbSet
+            .Include(ml => ml.Player)
+                .ThenInclude(p => p.Team)
+            .Include(ml => ml.Match)
+            .FirstOrDefaultAsync(ml => ml.Id == id);
+    }
+
+    public Task<MatchLineup?> GetByMatchAndPlayerAsync(int matchId, int playerId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<int> CountStartersByTeamInMatchAsync(int matchId, int teamId)
+    {
+        throw new NotImplementedException();
     }
 }
 

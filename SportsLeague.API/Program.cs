@@ -1,13 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using SportsLeague.DataAccess.Context;
 using SportsLeague.DataAccess.Repositories;
-using SportsLeague.Domain.Helpers;
 using SportsLeague.Domain.Interfaces.Repositories;
 using SportsLeague.Domain.Interfaces.Services;
 using SportsLeague.Domain.Services;
+using SportsLeague.Domain.Helpers;
 using SportsLeague.DataAccess.Seeders;
-using SportsLeague.Domain.Entities;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,12 +23,25 @@ builder.Services.AddScoped<ITournamentRepository, TournamentRepository>();
 builder.Services.AddScoped<ITournamentTeamRepository, TournamentTeamRepository>();
 builder.Services.AddScoped<ISponsorRepository, SponsorRepository>();
 builder.Services.AddScoped<ITournamentSponsorRepository, TournamentSponsorRepository>();
+builder.Services.AddScoped<IMatchLineupRepository, MatchLineupRepository>();
+builder.Services.AddScoped<IMatchLineupService, MatchLineupService>();
+// ── Repositories (agregar) ──
 builder.Services.AddScoped<IMatchRepository, MatchRepository>();
+
+// ── Services (agregar) ──
+builder.Services.AddScoped<IMatchService, MatchService>();
+
+// ── Repositories (agregar) ──
 builder.Services.AddScoped<IMatchResultRepository, MatchResultRepository>();
 builder.Services.AddScoped<IGoalRepository, GoalRepository>();
 builder.Services.AddScoped<ICardRepository, CardRepository>();
-builder.Services.AddScoped<IMatchLineupRepository, MatchLineupRepository>();
 
+// ── Services (agregar) ──
+builder.Services.AddScoped<IMatchEventService, MatchEventService>();
+builder.Services.AddScoped<MatchValidationHelper>();
+
+// ── Services (agregar) ──
+builder.Services.AddScoped<IStandingsService, StandingsService>();
 
 // ── Services ──
 builder.Services.AddScoped<ITeamService, TeamService>();
@@ -38,12 +49,6 @@ builder.Services.AddScoped<IPlayerService, PlayerService>();
 builder.Services.AddScoped<IRefereeService, RefereeService>();
 builder.Services.AddScoped<ITournamentService, TournamentService>();
 builder.Services.AddScoped<ISponsorService, SponsorService>();
-builder.Services.AddScoped<ITournamentSponsorService, TournamentSponsorService>();
-builder.Services.AddScoped<IMatchService, MatchService>();
-builder.Services.AddScoped<IMatchEventService, MatchEventService>();
-builder.Services.AddScoped<IMatchLineupService, MatchLineupService>();
-builder.Services.AddScoped<MatchValidationHelper>();
-builder.Services.AddScoped<IStandingsService, StandingsService>();
 
 // ── AutoMapper ──
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
@@ -56,8 +61,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-
-// ... después de var app = builder.Build();
 
 // ── Data Seeder ──
 using (var scope = app.Services.CreateScope())
@@ -81,7 +84,6 @@ app.MapGet("/", () => Results.Redirect("/swagger"));
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
-
 
 app.Run();
 

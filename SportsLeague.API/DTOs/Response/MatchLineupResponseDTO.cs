@@ -1,6 +1,6 @@
 ﻿namespace SportsLeague.API.DTOs.Response
 {
-    public class MatchLineupDto
+    public class MatchLineupResponseDTO
     {
         public int Id { get; set; }
 

@@ -25,7 +25,7 @@ namespace SportsLeague.Domain.Services
             _validationHelper = validationHelper;
         }
 
-        public async Task<MatchLineup> CreateLineupAsync(int matchId, MatchLineup lineup)
+        public async Task<MatchLineup> AddPlayerToLineupAsync(int matchId, MatchLineup lineup)
         {
             // V1: El partido debe existir
             var match = await _matchRepository.GetByIdAsync(matchId);
@@ -58,15 +58,12 @@ namespace SportsLeague.Domain.Services
                     throw new InvalidOperationException("El equipo ya tiene 11 titulares registrados en este partido");
             }
 
-            // Asignar el matchId y crear la alineación
             lineup.MatchId = matchId;
-
             return await _matchLineupRepository.CreateAsync(lineup);
         }
 
         public async Task<IEnumerable<MatchLineup>> GetLineupByMatchAsync(int matchId)
         {
-            // Verificar que el partido existe
             var match = await _matchRepository.GetByIdAsync(matchId);
             if (match == null)
                 throw new KeyNotFoundException($"No se encontró el partido con ID {matchId}");
@@ -76,7 +73,6 @@ namespace SportsLeague.Domain.Services
 
         public async Task<IEnumerable<MatchLineup>> GetLineupByMatchAndTeamAsync(int matchId, int teamId)
         {
-            // Verificar que el partido existe
             var match = await _matchRepository.GetByIdAsync(matchId);
             if (match == null)
                 throw new KeyNotFoundException($"No se encontró el partido con ID {matchId}");
@@ -84,14 +80,12 @@ namespace SportsLeague.Domain.Services
             return await _matchLineupRepository.GetByMatchAndTeamAsync(matchId, teamId);
         }
 
-        public async Task DeleteLineupAsync(int matchId, int lineupId)
+        public async Task DeleteLineupPlayerAsync(int matchId, int lineupId)
         {
-            // Verificar que el partido existe
             var match = await _matchRepository.GetByIdAsync(matchId);
             if (match == null)
                 throw new KeyNotFoundException($"No se encontró el partido con ID {matchId}");
 
-            // Verificar que la alineación existe
             var lineup = await _matchLineupRepository.GetByIdAsync(lineupId);
             if (lineup == null || lineup.MatchId != matchId)
                 throw new KeyNotFoundException($"No se encontró la alineación con ID {lineupId} en el partido {matchId}");
@@ -100,5 +94,4 @@ namespace SportsLeague.Domain.Services
         }
     }
 }
-
 
