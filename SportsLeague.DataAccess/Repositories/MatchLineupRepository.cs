@@ -60,14 +60,20 @@ public class MatchLineupRepository : GenericRepository<MatchLineup>, IMatchLineu
             .FirstOrDefaultAsync(ml => ml.Id == id);
     }
 
-    public Task<MatchLineup?> GetByMatchAndPlayerAsync(int matchId, int playerId)
+    public async Task<MatchLineup?> GetByMatchAndPlayerAsync(int matchId, int playerId)
     {
-        throw new NotImplementedException();
+        return await _dbSet
+            .FirstOrDefaultAsync(ml => ml.MatchId == matchId && ml.PlayerId == playerId);
     }
 
-    public Task<int> CountStartersByTeamInMatchAsync(int matchId, int teamId)
+    public async Task<int> CountStartersByTeamInMatchAsync(int matchId, int teamId)
     {
-        throw new NotImplementedException();
+        return await _dbSet
+            .Include(ml => ml.Player)
+            .CountAsync(ml => ml.MatchId == matchId &&
+                              ml.Player.TeamId == teamId &&
+                              ml.IsStarter);
     }
 }
+
 
