@@ -25,6 +25,7 @@
 
         // Registro de fecha y hora en que se formalizó la unión
         public DateTime JoinedAT { get; set; }
+        public object SponsorCategory { get; internal set; }
     }
 }
 
